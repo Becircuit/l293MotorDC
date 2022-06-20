@@ -1,0 +1,89 @@
+// C++ code
+//
+#define IN1 2
+#define IN2 3
+#define ena 5
+#define btn1 7 //sentido de giro
+#define btn2 8 //detener/avanzar
+
+/*
+ IN1 IN2
+  0   0 --> detener
+  1   0---> horario
+  0   1---> antihorario
+  
+  1 segundo --> pulsacion larga
+  >50ms y < 1 segundo --> pulsacion corta
+*/
+unsigned long timer;
+bool dir=0; //0 horario / 1 antihorario
+bool state=0; //0 detener / 1 avanzar
+int pwm=0;
+unsigned long timePwm=0;
+
+void setup()
+{
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  
+  pinMode(btn1,INPUT_PULLUP);
+  pinMode(btn2,INPUT_PULLUP);
+  
+}
+
+void loop()
+{
+  if(digitalRead(btn1)==LOW){  //si el pulsador ha sido presionado
+    timer=millis();
+    
+    while(digitalRead(btn1)==LOW) {}
+    
+    if(millis()-timer>50){
+      dir=!dir;
+      
+    }
+  
+      
+  }
+  
+  if(digitalRead(btn2)==LOW){  //si el pulsador ha sido presionado
+    timer=millis();
+    
+    while(digitalRead(btn2)==LOW) {}
+    
+    if(millis()-timer>50){
+      state=!state;
+      
+      if(state==1){
+          if(dir==0){
+            digitalWrite(IN1,HIGH);
+            digitalWrite(IN2,LOW);
+          }
+          else if(dir==1){
+            digitalWrite(IN1,LOW);
+            digitalWrite(IN2,HIGH);
+          }
+      }
+      else{
+        digitalWrite(IN1,LOW);
+        digitalWrite(IN2,LOW);
+      }
+    }
+  
+      
+  }
+  
+  if(state==1){
+    if(millis()-timePwm>20){
+      if(pwm<255) pwm++;
+             
+      timePwm=millis();
+    }
+  }
+  else{
+     pwm=0;
+  }
+  
+   analogWrite(ena,pwm);
+  
+}
